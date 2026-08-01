@@ -149,9 +149,10 @@ env_vars:
 
 ## Compliance
 
-Post-fix state: **7 / 7 applicable checks passing.** The three failures found on
-the pre-fix scan (`allowed_hosts_env`, `health_endpoint`, `dockerfile_registry`)
-were remediated in a prior run and remain in place.
+Post-fix state: **8 / 8 applicable checks passing.** The failures found on
+the pre-fix scan (`allowed_hosts_env`, `health_endpoint`, `dockerfile_registry`,
+and the `staticfiles` key in the `STORAGES` dict caught by `django_system_check`)
+were remediated in prior runs and remain in place.
 
 ```yaml
 compliance_findings:
@@ -172,6 +173,12 @@ compliance_findings:
     passed: true
     severity: blocker
     detail: "Only app with models is 'todos'; it has a real migration todos/migrations/0001_initial.py (CreateModel Todo)."
+    fix_hint: null
+  - id: django_system_check
+    title: Django system check passes
+    passed: true
+    severity: blocker
+    detail: "`python manage.py check` (run in the app's deploy image clyro-testapp-check with DJANGO_SETTINGS_MODULE=todoapp.settings.dev) exits 0: 'System check identified no issues (0 silenced).' STORAGES includes its 'staticfiles' key."
     fix_hint: null
   - id: health_endpoint
     title: Exposes a /health route
@@ -204,6 +211,7 @@ compliance_findings:
 | `database_url_env` | blocker | pass | single `DATABASE_URL` via dj-database-url |
 | `allowed_hosts_env` | warning | pass | read from env |
 | `django_migrations` | blocker | pass | `todos/migrations/0001_initial.py` present |
+| `django_system_check` | blocker | pass | `manage.py check` exits 0 in deploy image |
 | `health_endpoint` | warning | pass | `GET /health` → 200 `ok` |
 | `dockerfile_registry` | warning | pass | base image from public ECR mirror |
 | `frontend_lockfile` | blocker | pass | `package-lock.json` present |
@@ -237,8 +245,8 @@ status: complete
 block_reason: null
 block_message: null
 agent: "clyro-scan skill"
-generated_at: 2026-08-01
-commit_sha: "3b8baeca2d6c4d9aab415b3a570e0e72928e2d6b"
+generated_at: "2026-08-01"
+commit_sha: "9b3adc4aa98e305c58383ffc5228271631117f3b"
 scan_mode: fix
 confidence: high
 schema_version: 1
